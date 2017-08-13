@@ -18,4 +18,5 @@ end
 tagger = Tagger.new()
 gifmaker = GifMaker.new()
 scanner = Scanner.new(ARGV[0], ".mp4", [tagger, gifmaker])
+#scanner = Scanner.new(ARGV[0], ".mp4", [tagger])
 scanner.scan()

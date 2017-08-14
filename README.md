@@ -92,3 +92,7 @@ Useful for finding additional tags to filter.
 - Notify via AWS SNS for flagged keywords.
 
 ## Project Details
+
+This project resides on Github at: <https://github.com/BrianEnigma/SecurityCamProcessor>
+
+This project is copyright 2017 by [Brian Enigma](https://netninja.com/about/) and is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).

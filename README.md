@@ -86,6 +86,18 @@ cat *.json | jq '.important_tags[]' | sort -u |  sed 's/"//g'
 
 Useful for finding additional tags to filter.
 
+## Extending
+
+The `Scanner` class take advantage of the `Callback` base class. Plugins are polymorphic, extending this base class and implementing two functions:
+
+`def needs_processing(input_file)`
+
+Given the input file, does this plugin even need to run? If the plugin processes the input file to generate an output file (typically with an alternate extension, such as `.json` or `.gif`), it should check to see if it has already generated the output. The base `Scanner` class uses this to determine which input files can be skipped.
+
+`def callback(input_file, frames)`
+
+The `Scanner` class triggers this callback when required (based on the result of the `needs_processing()` call), passing in the input file as well as a list of `*.jpg` files that represent frames in the input. These frames are spaced 1 second apart.
+
 ## TODO
 
 - Add percentages to json.

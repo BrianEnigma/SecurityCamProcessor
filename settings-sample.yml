@@ -1,6 +1,5 @@
 access_key_id: AKIAI44QH8DHBEXAMPLE
 secret_access_key: je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY
-bucket_name: my-sample-bucket
 region: us-west-2
 flagged_tags:
     - human

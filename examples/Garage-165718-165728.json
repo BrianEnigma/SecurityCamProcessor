@@ -1,0 +1,30 @@
+{
+	"flagged_tags": [
+		"people"
+		,"person"
+		,"human"
+	],
+	"important_tags": [
+		"clothing"
+		,"skirt"
+	],
+	"ignored_tags": [
+		"plant"
+		,"potted plant"
+		,"bench"
+		,"deck"
+		,"housing"
+		,"porch"
+		,"yard"
+		,"backyard"
+		,"bird feeder"
+		,"chair"
+		,"furniture"
+		,"gutter"
+		,"aerial view"
+		,"awning"
+		,"soil"
+		,"machine"
+		,"ramp"
+	]
+}

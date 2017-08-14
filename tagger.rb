@@ -14,6 +14,7 @@ class Tagger < Callback
     def load_settings()
         settings = YAML.load(File.read('settings.yml'))
         @stopwords = settings['stopwords']
+        @flagged_tags = settings['flagged_tags']
         if settings['access_key_id'].empty? || settings['secret_access_key'].empty?
             print("AWS credentials not found in settings.yml\n")
             return false
@@ -69,17 +70,33 @@ class Tagger < Callback
         frames.each { |frame|
             process_frame(frame)
         }
+        flagged_tags = Array.new
         important_tags = Array.new
         ignored_tags = Array.new
         @tags.each { |tag|
-            if @stopwords.include?(tag)
+            if @flagged_tags.include?(tag)
+                flagged_tags << tag
+            elsif @stopwords.include?(tag)
                 ignored_tags << tag
             else
                 important_tags << tag
             end
         }
         f = File.new(output_file, 'w')
-        f << "{\n\t\"important_tags\": [\n"
+        f << "{\n"
+        f << "\t\"flagged_tags\": [\n"
+        first = true
+        flagged_tags.each { |tag|
+            f << "\t\t"
+            if first
+                first = false
+            else
+                f << ","
+            end
+            f << "\"#{tag}\"\n"
+        }
+        f << "\t],\n"
+        f << "\t\"important_tags\": [\n"
         first = true
         important_tags.each { |tag|
             f << "\t\t"

@@ -22,8 +22,6 @@ Useful for finding additional tags to filter.
 
 # TODO
 
-- Add "Important Keywords" list, like `human` `person` `people` etc
 - Add percentages to json
-- Move ffmpeg frame extraction into top-level module so that it only occurs once.
 - Create a generic test harness tool that takes the plugin name as a parameter
 

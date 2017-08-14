@@ -2,43 +2,68 @@ access_key_id: AKIAI44QH8DHBEXAMPLE
 secret_access_key: je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY
 bucket_name: my-sample-bucket
 region: us-west-2
+flagged_tags:
+    - human
+    - humans
+    - person
+    - people
 stopwords:
-    - deck
-    - porch
-    - housing
-    - house
-    - backyard
-    - yard
-    - alleyway
-    - road
-    - street
-    - town
-    - brick
-    - building
-    - alley
     - aerial view
+    - air conditioner
     - algae
-    - apartment building
+    - alley
+    - alleyway
+    - aluminium
     - apartment
+    - apartment building
     - appliance
     - architecture
+    - asphalt
+    - awning
+    - backyard
     - balcony
     - banister
+    - bathroom
+    - bbq
     - bench
+    - bird feeder
     - blossom
     - boardwalk
+    - boat
+    - bonsai
+    - box
+    - brick
+    - building
+    - cabbage
+    - cabin
+    - cabinet
     - cable car
+    - car
+    - cattle
     - chair
     - city
+    - conifer
+    - cow
     - crypt
+    - deck
+    - dill
+    - dinghy
+    - dock
     - dog house
     - downtown
+    - drain
     - dungeon
+    - electronics
+    - entertainment center
     - field
+    - fir
+    - flagstone
     - flora
     - flower
+    - food
     - freeway
     - furniture
+    - generator
     - grass
     - grassland
     - gutter
@@ -46,33 +71,69 @@ stopwords:
     - herbal
     - herbs
     - high rise
+    - house
+    - housing
+    - hut
     - indoors
     - interior design
+    - intersection
+    - kale
     - kennel
     - landslide
+    - lighting
+    - machine
     - mobile home
     - moss
     - neighborhood
     - oven
     - path
+    - patio
+    - pavement
     - phone
+    - pier
+    - pine
     - plant
     - planter
+    - playground
+    - plywood
     - pool
+    - porch
     - potted plant
+    - produce
     - railing
     - ramp
+    - road
     - room
+    - rural
     - screen
+    - sewer
+    - shack
+    - shelter
+    - sideboard
     - sidewalk
     - siding
+    - slide
     - soil
+    - spruce
     - staircase
+    - street
+    - subway
+    - tarmac
+    - town
     - trail
+    - train
+    - train station
+    - tree
+    - triangle
     - trolley
     - urban
+    - van
+    - vegetable
     - vehicle
     - villa
     - walkway
     - water
+    - white board
     - window
+    - wood
+    - yard

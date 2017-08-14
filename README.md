@@ -23,5 +23,3 @@ Useful for finding additional tags to filter.
 # TODO
 
 - Add percentages to json
-- Create a generic test harness tool that takes the plugin name as a parameter
-

@@ -69,7 +69,6 @@ class Scanner
     def scan_dir(directory_name)
         Dir.open(directory_name) { |dir|
             dir.each { |item|
-                p item
                 next if item.empty? || '.' == item[0]
                 full_path = File.expand_path(directory_name + "/" + item)
                 

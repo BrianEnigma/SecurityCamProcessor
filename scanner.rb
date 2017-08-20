@@ -69,6 +69,7 @@ class Scanner
     def scan_dir(directory_name)
         Dir.open(directory_name) { |dir|
             dir.each { |item|
+                p item
                 next if item.empty? || '.' == item[0]
                 full_path = File.expand_path(directory_name + "/" + item)
                 
@@ -84,13 +85,13 @@ class Scanner
                 }
                 
                 if any_need_processing
-                        @callback_list.each { |obj|
-                        temp_folder = "/tmp/tagger/"
-                        `rm -rf #{temp_folder}`
-                        Dir.mkdir(temp_folder)
-                        frames = Array.new
-                        extract_frames(full_path, 1, temp_folder)
-                        load_frames(temp_folder, frames)
+                    temp_folder = "/tmp/tagger/"
+                    `rm -rf #{temp_folder}`
+                    Dir.mkdir(temp_folder)
+                    frames = Array.new
+                    extract_frames(full_path, 1, temp_folder)
+                    load_frames(temp_folder, frames)
+                    @callback_list.each { |obj|
                         obj.callback(full_path, frames)
                     }
                 end

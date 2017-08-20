@@ -7,7 +7,7 @@ require './scanner'
 class Tagger < Callback
     def initialize()
         super()
-        @tags = Array.new
+        @tags = Hash.new
         throw "bad config" if !load_settings()
     end
     
@@ -32,6 +32,16 @@ class Tagger < Callback
         return true
     end
     private :load_settings
+    
+    def add_tag(name, confidence)
+        name = name.downcase
+        if @tags.has_key?(name)
+            @tags[name] = [@tags[name], confidence.to_i].max
+        else
+            @tags[name] = confidence.to_i
+        end
+    end
+    private :add_tag
         
     def process_frame(filename)
         rekognition = Aws::Rekognition::Client.new
@@ -47,12 +57,9 @@ class Tagger < Callback
         label_string = ''
         labels.map { |l| 
             label_string += "'#{l.name}:#{l.confidence.to_i}%' "
+            add_tag(l.name, l.confidence)
         }
         print("#{filename} : #{label_string}\n")
-        #result << [object.key, seconds, label_string, labels]
-        @tags << labels.collect { |entry| entry.name.downcase }
-        @tags.flatten!
-        @tags.uniq!
     end
     private :process_frame
 
@@ -70,54 +77,54 @@ class Tagger < Callback
         frames.each { |frame|
             process_frame(frame)
         }
-        flagged_tags = Array.new
-        important_tags = Array.new
-        ignored_tags = Array.new
-        @tags.each { |tag|
+        flagged_tags = Hash.new
+        important_tags = Hash.new
+        ignored_tags = Hash.new
+        @tags.each_pair { |tag, percent|
             if @flagged_tags.include?(tag)
-                flagged_tags << tag
+                flagged_tags[tag] = percent
             elsif @stopwords.include?(tag)
-                ignored_tags << tag
+                ignored_tags[tag] = percent
             else
-                important_tags << tag
+                important_tags[tag] = percent
             end
         }
         f = File.new(output_file, 'w')
         f << "{\n"
         f << "\t\"flagged_tags\": [\n"
         first = true
-        flagged_tags.each { |tag|
+        flagged_tags.each_pair { |tag, percent|
             f << "\t\t"
             if first
                 first = false
             else
                 f << ","
             end
-            f << "\"#{tag}\"\n"
+            f << "{\"#{tag}\": #{percent}}\n"
         }
         f << "\t],\n"
         f << "\t\"important_tags\": [\n"
         first = true
-        important_tags.each { |tag|
+        important_tags.each_pair { |tag, percent|
             f << "\t\t"
             if first
                 first = false
             else
                 f << ","
             end
-            f << "\"#{tag}\"\n"
+            f << "{\"#{tag}\": #{percent}}\n"
         }
         f << "\t],\n"
         f << "\t\"ignored_tags\": [\n"
         first = true
-        ignored_tags.each { |tag|
+        ignored_tags.each_pair { |tag, percent|
             f << "\t\t"
             if first
                 first = false
             else
                 f << ","
             end
-            f << "\"#{tag}\"\n"
+            f << "{\"#{tag}\": #{percent}}\n"
         }
         f << "\t]\n}\n"
         f.close()

@@ -100,7 +100,7 @@ The `Scanner` class triggers this callback when required (based on the result of
 
 ## TODO
 
-- Add percentages to json.
+- Check if video files are currently open or being written to. Skip if either is the case.
 - Notify via AWS SNS for flagged keywords.
 
 ## Project Details

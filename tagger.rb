@@ -69,6 +69,7 @@ class Tagger < Callback
     end
 
     def callback(input_file, frames)
+        @tags = Hash.new
         output_file = input_file[0, input_file.rindex('.')] + ".json"
         return if !File.exists?(input_file)
         return if File.exists?(output_file)

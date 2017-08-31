@@ -9,13 +9,25 @@ class Callback
     end
 end
 
+class DirectoryCallback
+    def initialize()
+    end
+    def callback(input_folder)
+    end
+    def needs_processing(input_file)
+    end
+end
+
 class Scanner
-    def initialize(directory, input_extension, callback_list)
+    def initialize(directory, input_extension, callback_list, directory_callback_list)
         @directory = File.expand_path(directory)
         @input_extension = input_extension
         @callback_list = Array.new
         @callback_list.push(callback_list)
         @callback_list.flatten!
+        @directory_callback_list = Array.new
+        @directory_callback_list.push(directory_callback_list)
+        @directory_callback_list.flatten!
         throw "ffmpeg is required" if !is_ffmpeg_present()
     end
 
@@ -63,17 +75,20 @@ class Scanner
     private :load_frames
     
     def scan()
-        scan_dir(@directory)
+        # First process all files recursively.
+        scan_dir_for_files(@directory)
+        # After all of the artifacts have been generated, scan all folders recursively.
+        scan_dir_for_folders(@directory)
     end
 
-    def scan_dir(directory_name)
+    def scan_dir_for_files(directory_name)
         Dir.open(directory_name) { |dir|
             dir.each { |item|
                 next if item.empty? || '.' == item[0]
                 full_path = File.expand_path(directory_name + "/" + item)
                 
                 if File.directory?(full_path)
-                    scan_dir(full_path) 
+                    scan_dir_for_files(full_path) 
                     next
                 end
                 next if !full_path.end_with?(@input_extension)
@@ -97,6 +112,34 @@ class Scanner
             }
         }
     end
-    private :scan_dir
+    private :scan_dir_for_files
+
+    def scan_dir_for_folders(directory_name)
+        directory_name = File.expand_path(directory_name)
+        Dir.open(directory_name) { |dir|
+            dir.each { |item|
+                next if item.empty? || '.' == item[0]
+                full_path = File.expand_path(directory_name + "/" + item)
+                
+                if File.directory?(full_path)
+                    # Depth-first scan.
+                    scan_dir_for_folders(full_path) 
+                    # Check if we need to do the thing.
+                    @directory_callback_list.each { |obj|
+                        if obj.needs_processing(full_path)
+                            obj.callback(full_path)
+                        end
+                    }
+                end
+            }
+        }
+        # Finally, process the outtermost folder
+        @directory_callback_list.each { |obj|
+            if obj.needs_processing(directory_name)
+                obj.callback(directory_name)
+            end
+        }
+    end
+    private :scan_dir_for_folders    
 end
 

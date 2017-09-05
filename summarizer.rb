@@ -24,17 +24,34 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
             margin:0;
             padding:0;
         }
+        div.thumbnail {
+            display:block;
+        }
         div.filename {
+            display:block;
             font-size:50%;
         }
         div.filename > a {
             color:black;
             text-decoration:none;
         }
+        div.flagged {
+            width:300px;
+            display:block;
+            font-weight:bold;
+        }
+        div.important {
+            width:300px;
+            display:block;
+        }
+        ul.tags {
+            list-style:none;
+            padding:0;
+        }
     </style>
     
 </head>
-<body id="" onload="">
+<body id="summarizer" onload="">
 HERE_HEADER
 SUMMARIZER_FOOTER = <<-HERE_HEADER
 </body>
@@ -78,14 +95,16 @@ class Summarizer < DirectoryCallback
     end
     
     def print_tag_list(f, tags, class_container, class_item, class_percent)
-        f << "<div class=\"#{class_container}\">"
+        f << "<div class=\"#{class_container}\"><ul class=\"tags tags_#{class_container}\">"
         tags.each { |item|
             tag = item.keys[0]
             percent = item[tag]
-            f << "<div class=\"#{class_item}\">#{tag}</div>"
-            f << "<div class=\"#{class_percent}\">(#{percent}%)</div>"
+            f << "<li>"
+            f << "<span class=\"#{class_item}\">#{tag}</span>"
+            f << "<span class=\"#{class_percent}\">(#{percent}%)</span>"
+            f << "</li>"
         }
-        f << "</div>"
+        f << "</ul></div>"
     end
     
     def write_json_to_html(f, json_file_name)
@@ -93,8 +112,10 @@ class Summarizer < DirectoryCallback
         video_filename = File.basename(json_file_name.gsub(".json", ".mp4"))
         data = JSON.parse(File.read(json_file_name))
         f << "<div class=\"summary\">"
-        f << "<a href=\"#{video_filename}\"><img src=\"#{image_filename}\" class=\"gif_thumbnail\" /></a>"
+        f << "<div class=\"thumbnail\">"
+        f << "<a href=\"#{video_filename}\"><img src=\"#{image_filename}\" class=\"gif_thumbnail\" alt=\"animated thumbnail\"/></a>"
         f << "<div class=\"filename\"><a href=\"#{video_filename}\">#{video_filename}</a></div>"
+        f << "</div>"
         flagged = data['flagged_tags']
         print_tag_list(f, flagged, 'flagged', 'flagged_tag', 'flagged_tag_percent')
         important = data['important_tags']

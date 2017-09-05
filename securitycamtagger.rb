@@ -3,6 +3,7 @@
 require './scanner'
 require './tagger'
 require './gifmaker'
+require './summarizer'
 
 running=`pgrep -f securitycamtagger`
 if !running.empty?
@@ -17,5 +18,6 @@ end
 
 tagger = Tagger.new()
 gifmaker = GifMaker.new()
-scanner = Scanner.new(ARGV[0], ".mp4", [tagger, gifmaker])
+summarizer = Summarizer.new()
+scanner = Scanner.new(ARGV[0], ".mp4", [tagger, gifmaker], [summarizer])
 scanner.scan()

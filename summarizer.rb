@@ -3,6 +3,44 @@
 require 'json'
 require './scanner'
 
+SUMMARIZER_HEADER = <<-HERE_HEADER
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Security Cam Summary</title>
+    <style type="text/css" media="screen">
+        div.summary {
+            display:inline-block;
+            width:300px;
+            margin:10px;
+            padding:0;
+            vertical-align:top;
+        }
+        img.gif_thumbnail {
+            width:300px;
+            height:169px;
+            border:none;
+            margin:0;
+            padding:0;
+        }
+        div.filename {
+            font-size:50%;
+        }
+        div.filename > a {
+            color:black;
+            text-decoration:none;
+        }
+    </style>
+    
+</head>
+<body id="" onload="">
+HERE_HEADER
+SUMMARIZER_FOOTER = <<-HERE_HEADER
+</body>
+</html>
+HERE_HEADER
+
 class Summarizer < DirectoryCallback
     def initialize()
         super()
@@ -51,11 +89,12 @@ class Summarizer < DirectoryCallback
     end
     
     def write_json_to_html(f, json_file_name)
+        image_filename = json_file_name.gsub(".json", ".gif")
+        video_filename = File.basename(json_file_name.gsub(".json", ".mp4"))
         data = JSON.parse(File.read(json_file_name))
         f << "<div class=\"summary\">"
-        
-        # TODO: gif file
-        
+        f << "<a href=\"#{video_filename}\"><img src=\"#{image_filename}\" class=\"gif_thumbnail\" /></a>"
+        f << "<div class=\"filename\"><a href=\"#{video_filename}\">#{video_filename}</a></div>"
         flagged = data['flagged_tags']
         print_tag_list(f, flagged, 'flagged', 'flagged_tag', 'flagged_tag_percent')
         important = data['important_tags']
@@ -68,13 +107,14 @@ class Summarizer < DirectoryCallback
         summary_file = File.expand_path(input_file + "/summarizer.txt")
         index_file = File.expand_path(input_file + "/index.html")
         f = File.open(index_file, "w")
+        f << SUMMARIZER_HEADER
         write_count = 0
-        print("Summarizer callback called for #{input_file}\n")
         json_files = read_json_list(input_file)
         json_files.each { |json_file|
             write_json_to_html(f, json_file)
             write_count += 1
         }
+        f << SUMMARIZER_FOOTER
         f.close()
         f = File.open(summary_file, "w")
         f << write_count

@@ -39,6 +39,8 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
             width:300px;
             display:block;
             font-weight:bold;
+            color:red;
+            background-color:#ffffcc;
         }
         div.important {
             width:300px;
@@ -96,19 +98,23 @@ class Summarizer < DirectoryCallback
     
     def print_tag_list(f, tags, class_container, class_item, class_percent)
         f << "<div class=\"#{class_container}\"><ul class=\"tags tags_#{class_container}\">"
-        tags.each { |item|
-            tag = item.keys[0]
-            percent = item[tag]
-            f << "<li>"
-            f << "<span class=\"#{class_item}\">#{tag}</span>"
-            f << "<span class=\"#{class_percent}\">(#{percent}%)</span>"
-            f << "</li>"
-        }
+        if nil != tags
+            tags.each { |item|
+                if item.class.to_s == 'Hash'
+                    tag = item.keys[0]
+                    percent = item[tag]
+                    f << "<li>"
+                    f << "<span class=\"#{class_item}\">#{tag}</span>"
+                    f << "<span class=\"#{class_percent}\">(#{percent}%)</span>"
+                    f << "</li>"
+                end
+            }
+        end
         f << "</ul></div>"
     end
     
     def write_json_to_html(f, json_file_name)
-        image_filename = json_file_name.gsub(".json", ".gif")
+        image_filename = File.basename(json_file_name.gsub(".json", ".gif"))
         video_filename = File.basename(json_file_name.gsub(".json", ".mp4"))
         data = JSON.parse(File.read(json_file_name))
         f << "<div class=\"summary\">"
@@ -127,6 +133,7 @@ class Summarizer < DirectoryCallback
     def callback(input_file)
         summary_file = File.expand_path(input_file + "/summarizer.txt")
         index_file = File.expand_path(input_file + "/index.html")
+        print("Summarizing #{index_file}\n")
         f = File.open(index_file, "w")
         f << SUMMARIZER_HEADER
         write_count = 0

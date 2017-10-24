@@ -160,7 +160,7 @@ class Summarizer < DirectoryCallback
 
     def write_directory_to_html(f, directory_name)
         f << "<div class=\"subdirectory\">"
-        f << "<a href=\"#{directory_name}/\">#{directory_name}</a>"
+        f << "<a href=\"#{directory_name}/index.html\">#{directory_name}</a>"
         f << "</div>"
     end
     private :write_directory_to_html

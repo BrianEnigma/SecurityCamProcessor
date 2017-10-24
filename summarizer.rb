@@ -10,6 +10,12 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>Security Cam Summary</title>
     <style type="text/css" media="screen">
+        div.subdirectory {
+            width:300px;
+            margin:10px;
+            padding:0;
+            vertical-align:top;
+        }
         div.summary {
             display:inline-block;
             width:300px;
@@ -34,6 +40,10 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
         div.filename > a {
             color:black;
             text-decoration:none;
+        }
+        div.subdirectory > a {
+            color:blue;
+            font-size:16pt;
         }
         div.flagged {
             width:300px;
@@ -82,12 +92,30 @@ class Summarizer < DirectoryCallback
     end
     private :read_json_list    
     
+    def read_subdirectory_list(directory_name)
+        result = Array.new
+        directory_name = File.expand_path(directory_name)
+        Dir.open(directory_name) { |dir|
+            dir.each { |item|
+                full_path = File.expand_path(directory_name + "/" + item)
+                next if item.empty? || '.' == item[0]
+                next if !File.directory?(full_path)
+                result << item
+            }
+        }
+        result.sort!
+        result.reverse!
+        return result
+    end
+    private :read_subdirectory_list    
+
     def needs_processing(input_file)
         summary_file = File.expand_path(input_file + "/summarizer.txt")
         index_file = File.expand_path(input_file + "/index.html")
         return true if !File.exists?(index_file)
-        count_expected = 0
+        count_expected = -1
         count_actual = read_json_list(input_file).size
+        count_actual = -2 if 0 == count_actual
         if File.exists?(summary_file)
             f = File.open(summary_file, "r")
             count_expected = f.readline().to_i
@@ -130,6 +158,13 @@ class Summarizer < DirectoryCallback
     end
     private :write_json_to_html
 
+    def write_directory_to_html(f, directory_name)
+        f << "<div class=\"subdirectory\">"
+        f << "<a href=\"#{directory_name}/\">#{directory_name}</a>"
+        f << "</div>"
+    end
+    private :write_directory_to_html
+
     def callback(input_file)
         summary_file = File.expand_path(input_file + "/summarizer.txt")
         index_file = File.expand_path(input_file + "/index.html")
@@ -137,6 +172,10 @@ class Summarizer < DirectoryCallback
         f = File.open(index_file, "w")
         f << SUMMARIZER_HEADER
         write_count = 0
+        subdirectories = read_subdirectory_list(input_file)
+        subdirectories.each { |subdirectory|
+            write_directory_to_html(f, subdirectory);
+        }
         json_files = read_json_list(input_file)
         json_files.each { |json_file|
             write_json_to_html(f, json_file)

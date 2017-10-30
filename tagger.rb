@@ -8,6 +8,8 @@ class Tagger < Callback
     def initialize()
         super()
         @tags = Hash.new
+        # Sample every three incoming frames. This is equivalent to every three seconds.
+        @sample_period = 3
         throw "bad config" if !load_settings()
     end
     
@@ -75,8 +77,16 @@ class Tagger < Callback
         return if File.exists?(output_file)
         print("#{input_file} => #{output_file}\n")
         
-        frames.each { |frame|
-            process_frame(frame)
+        frame_counter = 0
+        sorted_frames = frames.sort
+        sorted_frames.each { |frame|
+            if (frame_counter % @sample_period == 0)
+                #puts("Checking file #{frame}")
+                process_frame(frame)
+            else
+                #puts("Skipping file #{frame}")
+            end
+            frame_counter += 1
         }
         flagged_tags = Hash.new
         important_tags = Hash.new

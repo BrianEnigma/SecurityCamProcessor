@@ -4,12 +4,19 @@ require 'yaml'
 require 'aws-sdk'
 require './scanner'
 
+SKIP_THRESHOLD = 120
+
 class Tagger < Callback
     def initialize()
         super()
         @tags = Hash.new
         # Sample every three incoming frames. This is equivalent to every three seconds.
         @sample_period = 3
+        # Time (in seconds since midnight) associated with the last thing we performed scanning on.
+        # This is used to help throttle against conditions like rain or wind (with moving shadows)
+        # that could drop hundreds of files in an hour. If "this" video is too close to the previous
+        # video, we'll skip running Rekognizer on it.
+        @previous_item_time = -9999
         throw "bad config" if !load_settings()
     end
     
@@ -69,6 +76,19 @@ class Tagger < Callback
         output_file = input_file[0, input_file.rindex('.')] + ".json"
         return !File.exists?(output_file)
     end
+    
+    def extract_time(filename)
+        result = 0
+        filename = File.basename(filename)
+        matches = /-([0-9][0-9])([0-9][0-9])([0-9][0-9])-/.match(filename)
+        if 4 == matches.length
+            hours = matches[1].to_i
+            minutes = matches[2].to_i
+            seconds = matches[3].to_i
+            result = hours * 60 * 60 + minutes * 60 + seconds
+        end
+        return result
+    end
 
     def callback(input_file, frames)
         @tags = Hash.new
@@ -77,29 +97,38 @@ class Tagger < Callback
         return if File.exists?(output_file)
         print("#{input_file} => #{output_file}\n")
         
-        frame_counter = 0
-        sorted_frames = frames.sort
-        sorted_frames.each { |frame|
-            if (frame_counter % @sample_period == 0)
-                #puts("Checking file #{frame}")
-                process_frame(frame)
-            else
-                #puts("Skipping file #{frame}")
-            end
-            frame_counter += 1
-        }
         flagged_tags = Hash.new
         important_tags = Hash.new
         ignored_tags = Hash.new
-        @tags.each_pair { |tag, percent|
-            if @flagged_tags.include?(tag)
-                flagged_tags[tag] = percent
-            elsif @stopwords.include?(tag)
-                ignored_tags[tag] = percent
-            else
-                important_tags[tag] = percent
-            end
-        }
+
+        current_item_time = extract_time(input_file)
+        if current_item_time - @previous_item_time <= SKIP_THRESHOLD
+            print("--> skipping due to timestamp being too close to previous video\n")
+            important_tags['_skipped_'] = 100
+        else
+            frame_counter = 0
+            sorted_frames = frames.sort
+            sorted_frames.each { |frame|
+                if (frame_counter % @sample_period == 0)
+                    #puts("Checking file #{frame}")
+                    process_frame(frame)
+                else
+                    #puts("Skipping file #{frame}")
+                end
+                frame_counter += 1
+            }
+            @tags.each_pair { |tag, percent|
+                if @flagged_tags.include?(tag)
+                    flagged_tags[tag] = percent
+                elsif @stopwords.include?(tag)
+                    ignored_tags[tag] = percent
+                else
+                    important_tags[tag] = percent
+                end
+            }
+        end
+        @previous_item_time = current_item_time
+        
         f = File.new(output_file, 'w')
         f << "{\n"
         f << "\t\"flagged_tags\": [\n"

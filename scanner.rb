@@ -83,6 +83,7 @@ class Scanner
 
     def scan_dir_for_files(directory_name)
         Dir.open(directory_name) { |dir|
+            file_list = []
             dir.each { |item|
                 next if item.empty? || '.' == item[0]
                 full_path = File.expand_path(directory_name + "/" + item)
@@ -99,6 +100,12 @@ class Scanner
                 }
                 
                 if any_need_processing
+                    file_list << full_path
+                end
+            }
+            if !file_list.empty?
+                file_list.sort!
+                file_list.each { |full_path|
                     temp_folder = "/tmp/tagger/"
                     `rm -rf #{temp_folder}`
                     Dir.mkdir(temp_folder)
@@ -108,8 +115,8 @@ class Scanner
                     @callback_list.each { |obj|
                         obj.callback(full_path, frames)
                     }
-                end
-            }
+                }
+            end
         }
     end
     private :scan_dir_for_files

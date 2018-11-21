@@ -202,14 +202,14 @@ class Summarizer < DirectoryCallback
         video_filename = File.basename(json_file_name.gsub(".json", ".mp4"))
         data = JSON.parse(File.read(json_file_name))
         duration_extra = ''
-        duration_extra = 'durationWarning' if data['duration'] >= MIN_DURATION_WARN
-        duration_extra = 'durationError' if data['duration'] >= MIN_DURATION_ERROR
+        duration_extra = 'durationWarning' if data['duration'].to_i >= MIN_DURATION_WARN
+        duration_extra = 'durationError' if data['duration'].to_i >= MIN_DURATION_ERROR
         summary_extra = ''
-        summary_extra = 'summaryShort' if data['duration'] < MIN_DURATION_WARN
-        summary_extra = 'summaryLong' if data['duration'] >= MIN_DURATION_ERROR
+        summary_extra = 'summaryShort' if data['duration'].to_i < MIN_DURATION_WARN
+        summary_extra = 'summaryLong' if data['duration'].to_i >= MIN_DURATION_ERROR
         gap_extra = ''
-        gap_extra = 'gapWarning' if data['since'] <= MAX_GAP_WARN
-        gap_extra = 'gapError' if data['since'] <= MAX_GAP_ERROR
+        gap_extra = 'gapWarning' if data['since'].to_i <= MAX_GAP_WARN
+        gap_extra = 'gapError' if data['since'].to_i <= MAX_GAP_ERROR
         
         f << "<div class=\"summary #{summary_extra}\">"
         f << "<div class=\"thumbnail\">"

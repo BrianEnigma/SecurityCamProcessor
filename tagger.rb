@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'yaml'
+require 'json'
 require 'aws-sdk'
 require './scanner'
+require './metadata'
 
 SKIP_THRESHOLD = 120
 
@@ -77,19 +79,6 @@ class Tagger < Callback
         return !File.exists?(output_file)
     end
     
-    def extract_time(filename)
-        result = 0
-        filename = File.basename(filename)
-        matches = /-([0-9][0-9])([0-9][0-9])([0-9][0-9])-/.match(filename)
-        if 4 == matches.length
-            hours = matches[1].to_i
-            minutes = matches[2].to_i
-            seconds = matches[3].to_i
-            result = hours * 60 * 60 + minutes * 60 + seconds
-        end
-        return result
-    end
-
     def callback(input_file, frames)
         @tags = Hash.new
         output_file = input_file[0, input_file.rindex('.')] + ".json"
@@ -101,7 +90,8 @@ class Tagger < Callback
         important_tags = Hash.new
         ignored_tags = Hash.new
 
-        current_item_time = extract_time(input_file)
+        times = Metadata.extract_times(input_file)
+        current_item_time = times[:time_start]
         if current_item_time - @previous_item_time <= SKIP_THRESHOLD
             print("--> skipping due to timestamp being too close to previous video\n")
             important_tags['_skipped_'] = 100
@@ -127,46 +117,21 @@ class Tagger < Callback
                 end
             }
         end
-        @previous_item_time = current_item_time
         
-        f = File.new(output_file, 'w')
-        f << "{\n"
-        f << "\t\"flagged_tags\": [\n"
-        first = true
-        flagged_tags.each_pair { |tag, percent|
-            f << "\t\t"
-            if first
-                first = false
-            else
-                f << ","
-            end
-            f << "{\"#{tag}\": #{percent}}\n"
+        jsonHash = {
+            'flagged_tags' => flagged_tags,
+            'important_tags' => important_tags,
+            'ignored_tags' => ignored_tags,
+            'time_start' => times[:time_start],
+            'time_end' => times[:time_end],
+            'duration' => times[:duration],
+            'since' => current_item_time - @previous_item_time
         }
-        f << "\t],\n"
-        f << "\t\"important_tags\": [\n"
-        first = true
-        important_tags.each_pair { |tag, percent|
-            f << "\t\t"
-            if first
-                first = false
-            else
-                f << ","
-            end
-            f << "{\"#{tag}\": #{percent}}\n"
-        }
-        f << "\t],\n"
-        f << "\t\"ignored_tags\": [\n"
-        first = true
-        ignored_tags.each_pair { |tag, percent|
-            f << "\t\t"
-            if first
-                first = false
-            else
-                f << ","
-            end
-            f << "{\"#{tag}\": #{percent}}\n"
-        }
-        f << "\t]\n}\n"
-        f.close()
+        
+        File.open(output_file, 'w') do |f|
+            f.write(JSON.pretty_generate(jsonHash))
+        end
+        
+        @previous_item_time = times[:time_end]
     end
 end

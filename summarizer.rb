@@ -33,13 +33,44 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
         div.thumbnail {
             display:block;
         }
+        div.gap {
+            width:50%;
+            font-size:85%;
+            font-family:monospace;
+        }
+        div.gapWarning {
+            background-color:#ff0;
+            font-weight:bold;
+        }
+        div.gapError {
+            background-color:#f00;
+            color:#ff0;
+            font-weight:bold;
+        }
         div.filename {
             display:block;
-            font-size:50%;
+            width:50%;
         }
         div.filename > a {
+            font-size:50%;
             color:black;
             text-decoration:none;
+        }
+        div.duration {
+            display:block;
+            width:50%;
+            float:right;
+            text-align:right;
+            font-family:monospace;
+        }
+        div.durationWarning {
+            background-color:#ff0;
+            font-weight:bold;
+        }
+        div.durationError {
+            background-color:#f00;
+            color:#ff0;
+            font-weight:bold;
         }
         div.subdirectory > a {
             color:blue;
@@ -60,6 +91,10 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
             list-style:none;
             padding:0;
         }
+        span.timespan {
+            font-size:85%;
+            font-family:monospace;
+        }
     </style>
     
 </head>
@@ -69,6 +104,11 @@ SUMMARIZER_FOOTER = <<-HERE_HEADER
 </body>
 </html>
 HERE_HEADER
+
+MIN_DURATION_WARN = 30
+MIN_DURATION_ERROR = 60
+MAX_GAP_ERROR = 0
+MAX_GAP_WARN = 15
 
 class Summarizer < DirectoryCallback
     def initialize()
@@ -141,14 +181,46 @@ class Summarizer < DirectoryCallback
         f << "</ul></div>"
     end
     
+    def format_time(seconds, include_am_pm)
+        return "err:err:err" if (nil == seconds) or (seconds < 0)
+        hours = (seconds / 60 / 60).to_i
+        seconds = seconds % (60 * 60)
+        minutes = (seconds / 60).to_i
+        seconds = seconds % 60
+        ampm = 'am'
+        if hours > 12
+            ampm = 'pm'
+            hours -= 12
+        end
+        result = sprintf("%d:%02d:%02d", hours, minutes, seconds)
+        result += ampm if include_am_pm
+        return result
+    end
+    
     def write_json_to_html(f, json_file_name)
         image_filename = File.basename(json_file_name.gsub(".json", ".gif"))
         video_filename = File.basename(json_file_name.gsub(".json", ".mp4"))
         data = JSON.parse(File.read(json_file_name))
-        f << "<div class=\"summary\">"
+        duration_extra = ''
+        duration_extra = 'durationWarning' if data['duration'] >= MIN_DURATION_WARN
+        duration_extra = 'durationError' if data['duration'] >= MIN_DURATION_ERROR
+        summary_extra = ''
+        summary_extra = 'summaryShort' if data['duration'] < MIN_DURATION_WARN
+        summary_extra = 'summaryLong' if data['duration'] >= MIN_DURATION_ERROR
+        gap_extra = ''
+        gap_extra = 'gapWarning' if data['since'] <= MAX_GAP_WARN
+        gap_extra = 'gapError' if data['since'] <= MAX_GAP_ERROR
+        
+        f << "<div class=\"summary #{summary_extra}\">"
         f << "<div class=\"thumbnail\">"
         f << "<a href=\"#{video_filename}\"><img src=\"#{image_filename}\" class=\"gif_thumbnail\" alt=\"animated thumbnail\"/></a>"
-        f << "<div class=\"filename\"><a href=\"#{video_filename}\">#{video_filename}</a></div>"
+        if nil != data['since'] and data['since'] >= 0
+            f << "<div class=\"gap #{gap_extra}\">Gap: #{format_time(data['since'], false)}</div>"
+        else
+            f << "<div class=\"gap gapWarning\">Gap: UNDEFINED</div>"
+        end
+        f << "<div class=\"duration #{duration_extra}\">#{format_time(data['duration'], false)}</div>"
+        f << "<div class=\"filename\"><a href=\"#{video_filename}\">#{video_filename}</a><br /><span class=\"timespan\">#{format_time(data['time_start'], true)} &mdash; #{format_time(data['time_end'], true)}</span></div>"
         f << "</div>"
         flagged = data['flagged_tags']
         print_tag_list(f, flagged, 'flagged', 'flagged_tag', 'flagged_tag_percent')

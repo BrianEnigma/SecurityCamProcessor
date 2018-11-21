@@ -92,7 +92,7 @@ class Tagger < Callback
 
         times = Metadata.extract_times(input_file)
         current_item_time = times[:time_start]
-        if current_item_time - @previous_item_time <= SKIP_THRESHOLD
+        if (current_item_time - @previous_item_time >= 0) and (current_item_time - @previous_item_time <= SKIP_THRESHOLD)
             print("--> skipping due to timestamp being too close to previous video\n")
             important_tags['_skipped_'] = 100
         else

@@ -167,15 +167,11 @@ class Summarizer < DirectoryCallback
     def print_tag_list(f, tags, class_container, class_item, class_percent)
         f << "<div class=\"#{class_container}\"><ul class=\"tags tags_#{class_container}\">"
         if nil != tags
-            tags.each { |item|
-                if item.class.to_s == 'Hash'
-                    tag = item.keys[0]
-                    percent = item[tag]
-                    f << "<li>"
-                    f << "<span class=\"#{class_item}\">#{tag}</span>"
-                    f << "<span class=\"#{class_percent}\">(#{percent}%)</span>"
-                    f << "</li>"
-                end
+            tags.each_pair { |tag, percent|
+                f << "<li>"
+                f << "<span class=\"#{class_item}\">#{tag}</span>"
+                f << "<span class=\"#{class_percent}\">(#{percent}%)</span>"
+                f << "</li>"
             }
         end
         f << "</ul></div>"

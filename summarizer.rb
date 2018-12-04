@@ -39,11 +39,11 @@ SUMMARIZER_HEADER = <<-HERE_HEADER
             font-family:monospace;
         }
         div.gapWarning {
-            background-color:#ff0;
+            background-color:#ccf;
             font-weight:bold;
         }
         div.gapError {
-            background-color:#f00;
+            background-color:#00f;
             color:#ff0;
             font-weight:bold;
         }

@@ -19,6 +19,9 @@ class Tagger < Callback
         # that could drop hundreds of files in an hour. If "this" video is too close to the previous
         # video, we'll skip running Rekognizer on it.
         @previous_item_time = -9999
+        # Number of samples to take for tagging. For instance when given 20 frames of video (20 seconds),
+        # divide by this number. In that example, we'd ask for keywords for every 4th frame.
+        @partitions = 5
         throw "bad config" if !load_settings()
     end
     
@@ -92,31 +95,32 @@ class Tagger < Callback
 
         times = Metadata.extract_times(input_file)
         current_item_time = times[:time_start]
-        if (current_item_time - @previous_item_time >= 0) and (current_item_time - @previous_item_time <= SKIP_THRESHOLD)
-            print("--> skipping due to timestamp being too close to previous video\n")
-            important_tags['_skipped_'] = 100
+        sorted_frames = frames.sort
+        if sorted_frames.length <= 6
+            check_frames = sorted_frames
         else
-            frame_counter = 0
-            sorted_frames = frames.sort
-            sorted_frames.each { |frame|
-                if (frame_counter % @sample_period == 0)
-                    #puts("Checking file #{frame}")
-                    process_frame(frame)
-                else
-                    #puts("Skipping file #{frame}")
-                end
-                frame_counter += 1
-            }
-            @tags.each_pair { |tag, percent|
-                if @flagged_tags.include?(tag)
-                    flagged_tags[tag] = percent
-                elsif @stopwords.include?(tag)
-                    ignored_tags[tag] = percent
-                else
-                    important_tags[tag] = percent
-                end
-            }
+            check_frames = []
+            span = (sorted_frames.length / @partitions).to_i
+            check_frames << sorted_frames[5] # Always get second six because the video has 5s buffer from before motion triggering
+            counter = span - 1
+            while (counter < sorted_frames.length)
+                check_frames << sorted_frames[counter]
+                counter += span
+            end
         end
+
+        check_frames.each { |frame|
+            process_frame(frame)
+        }
+        @tags.each_pair { |tag, percent|
+            if @flagged_tags.include?(tag)
+                flagged_tags[tag] = percent
+            elsif @stopwords.include?(tag)
+                ignored_tags[tag] = percent
+            else
+                important_tags[tag] = percent
+            end
+        }
         
         jsonHash = {
             'flagged_tags' => flagged_tags,

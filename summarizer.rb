@@ -226,9 +226,18 @@ class Summarizer < DirectoryCallback
     end
     private :write_json_to_html
 
-    def write_directory_to_html(f, directory_name)
+    def write_directory_to_html(f, input_file, directory_name)
+        size = `du -sh "#{input_file}/#{directory_name}" | sed 's/^ *//' | cut -f 1`
+        parsed_name = directory_name
+        if 8 == directory_name.length
+            m = directory_name[0..1]
+            d = directory_name[2..3]
+            y = directory_name[4..7]
+            dow = Time.new(y.to_i, m.to_i, d.to_i).strftime('%A')
+            parsed_name = "#{dow} #{y}-#{m}-#{d}"
+        end
         f << "<div class=\"subdirectory\">"
-        f << "<a href=\"#{directory_name}/index.html\">#{directory_name}</a>"
+        f << "<a href=\"#{directory_name}/index.html\">#{parsed_name}</a> ;mdash; #{size}"
         f << "</div>"
     end
     private :write_directory_to_html
@@ -242,7 +251,7 @@ class Summarizer < DirectoryCallback
         write_count = 0
         subdirectories = read_subdirectory_list(input_file)
         subdirectories.each { |subdirectory|
-            write_directory_to_html(f, subdirectory);
+            write_directory_to_html(f, input_file, subdirectory);
         }
         json_files = read_json_list(input_file)
         json_files.each { |json_file|

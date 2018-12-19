@@ -237,7 +237,7 @@ class Summarizer < DirectoryCallback
             parsed_name = "#{dow} #{y}-#{m}-#{d}"
         end
         f << "<div class=\"subdirectory\">"
-        f << "<a href=\"#{directory_name}/index.html\">#{parsed_name}</a> ;mdash; #{size}"
+        f << "<a href=\"#{directory_name}/index.html\">#{parsed_name}</a> &mdash; #{size}"
         f << "</div>"
     end
     private :write_directory_to_html

@@ -4,6 +4,7 @@ require './scanner'
 require './tagger'
 require './gifmaker'
 require './summarizer'
+require './mover'
 
 running=`pgrep -f securitycamtagger`
 if !running.empty?
@@ -11,13 +12,19 @@ if !running.empty?
     exit 0
 end
 
-if ARGV.empty?
-    print "Put folder to recursively scan on the command line.\n"
+if ARGV.length != 2
+    print "Usage: securitycamtagger.rb {input directory} {output directory}\n"
     exit 1
 end
+
+input_folder = ARGV[0]
+output_folder = ARGV[1]
+
+mover = Mover.new(input_folder, output_folder, 2)
+mover.move()
 
 tagger = Tagger.new()
 gifmaker = GifMaker.new()
 summarizer = Summarizer.new()
-scanner = Scanner.new(ARGV[0], ".mp4", [tagger, gifmaker], [summarizer])
+scanner = Scanner.new(output_folder, ".mp4", [tagger, gifmaker], [summarizer])
 scanner.scan()

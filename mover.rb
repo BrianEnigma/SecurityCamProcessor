@@ -69,7 +69,7 @@ class Mover
     def remux_move(in_filename, out_filename)
         cmd = "ffmpeg -i \"#{in_filename}\" -vcodec copy -acodec copy -y \"#{out_filename}\""
         if system(cmd)
-            #File.unlink(in_filename)
+            File.unlink(in_filename)
         else
             puts "Error remuxing \"#{in_filename}\" to \"#{out_filename}\""
         end

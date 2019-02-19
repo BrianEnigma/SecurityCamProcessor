@@ -230,9 +230,9 @@ class Summarizer < DirectoryCallback
         size = `du -sh "#{input_file}/#{directory_name}" | sed 's/^ *//' | cut -f 1`
         parsed_name = directory_name
         if 8 == directory_name.length
-            m = directory_name[0..1]
-            d = directory_name[2..3]
-            y = directory_name[4..7]
+            m = directory_name[4..5]
+            d = directory_name[6..7]
+            y = directory_name[0..3]
             dow = Time.new(y.to_i, m.to_i, d.to_i).strftime('%A')
             parsed_name = "#{dow} #{y}-#{m}-#{d}"
         end

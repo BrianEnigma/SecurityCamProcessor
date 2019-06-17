@@ -271,7 +271,10 @@ class Summarizer < DirectoryCallback
             write_json_to_html(f, json_file)
             write_count += 1
         }
-        write_screenshot(f, File.expand_path(input_file + "/screen.png")) unless subdirectories.empty?
+        if !subdirectories.empty?
+            write_screenshot(f, File.expand_path(input_file + "/screen.png")) unless subdirectories.empty?
+            write_free_space(f)
+        end
         f << SUMMARIZER_FOOTER
         f.close()
         f = File.open(summary_file, "w")

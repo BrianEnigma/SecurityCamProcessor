@@ -245,9 +245,15 @@ class Summarizer < DirectoryCallback
     def write_screenshot(f, image_file)
         cmd = "screencapture -xt png \"#{image_file}\""
         system(cmd)
-        f << "<p><a href=\"screen.png\"><img src=\"screen.png\" style=\"width:25%; display:block; margin:0 auto;\" /></a></p>"
+        f << "<p><a href=\"screen.png\"><img src=\"screen.png\" style=\"width:75%; display:block; margin:0 auto;\" /></a></p>"
     end
     private :write_screenshot
+
+    def write_free_space(f)
+        cmd = 'df -h /'
+        output = `#{cmd}`
+        f << "<pre>#{output}</pre>"
+    end
 
     def callback(input_file)
         summary_file = File.expand_path(input_file + "/summarizer.txt")
@@ -265,7 +271,10 @@ class Summarizer < DirectoryCallback
             write_json_to_html(f, json_file)
             write_count += 1
         }
-        write_screenshot(f, File.expand_path(input_file + "/screen.png")) unless subdirectories.empty?
+        if !subdirectories.empty?
+            write_screenshot(f, File.expand_path(input_file + "/screen.png")) unless subdirectories.empty?
+            write_free_space(f)
+        end
         f << SUMMARIZER_FOOTER
         f.close()
         f = File.open(summary_file, "w")

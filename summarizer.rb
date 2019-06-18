@@ -243,7 +243,7 @@ class Summarizer < DirectoryCallback
     private :write_directory_to_html
 
     def write_screenshot(f, image_file)
-        cmd = "screencapture -xt png \"#{image_file}\""
+        cmd = "screencapture -x \"#{image_file}\""
         system(cmd)
         f << "<p><a href=\"screen.png\"><img src=\"screen.png\" style=\"width:75%; display:block; margin:0 auto;\" /></a></p>"
     end

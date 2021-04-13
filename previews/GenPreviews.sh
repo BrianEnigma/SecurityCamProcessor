@@ -14,8 +14,10 @@ for ((i = 0 ; i < ${#CAMERAS[@]} ; i++)) ; do
 		-vsync vfr \
 		-frames 1 \
 		-f image2 \
-		-y /Users/admin/Security/recent/thumbnail-$NAME.jpg
+		-y /Users/admin/Security/live/thumbnail-$NAME.jpg
 done
+
+cp /Users/admin/Security/live/thumbnail* /Users/admin/Security/recent/
 
 exit 0
 

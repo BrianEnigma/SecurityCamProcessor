@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <!--
+    TODO: refresh tag
+    -->
+    <title>Security Cam View</title>
+    <style type="text/css" media="screen">
+        body {
+            padding: 2px;
+            padding-top: 4px;
+            margin: 0;
+            background: #999;
+        }
+        #timestamp {
+            text-align: center;
+            color: #ff0;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .thumbnails {
+            width: 100%;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .thumbnail {
+            width: 49%;
+            height: 100%;
+            margin: 2px;
+            padding: 0;
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            position: relative;
+            border: solid black 1px;
+        }
+        .thumbnailImg {
+            width: 100%;
+            vertical-align: middle;
+            margin: 0;
+            padding: 0;
+        }
+
+        @media all and (max-width:960px) {
+            .thumbnail {
+                width: 98%;
+            }
+        }
+    </style>
+
+    <script>
+        function zeroPad(i)
+        {
+            if (i < 10)
+                return '0' + i;
+            return i;
+        }
+        function setTime()
+        {
+            let now = new Date();
+            let nowString = now.getFullYear() + '-' + zeroPad(now.getMonth() + 1) + '-' + zeroPad(now.getDay()) + ' ' +
+                now.getHours() + ':' + zeroPad(now.getMinutes()) + ':' + zeroPad(now.getSeconds());
+            document.getElementById('timestamp').innerHTML = nowString;
+        }
+    </script>
+</head>
+<body id="live" onload="setTime();">
+<div id="timestamp">&nbsp;</div>
+<div class="thumbnails">
+    <div class="thumbnail">
+        <img src="thumbnail-porch.jpg" class="thumbnailImg"/>
+    </div>
+    <div class="thumbnail">
+        <img src="thumbnail-garage.jpg" class="thumbnailImg"/>
+    </div>
+    <div class="thumbnail">
+        <img src="thumbnail-democam.jpg" class="thumbnailImg"/>
+    </div>
+</div>
+</body>
+</html>

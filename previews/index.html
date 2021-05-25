@@ -62,20 +62,38 @@
                 now.getHours() + ':' + zeroPad(now.getMinutes()) + ':' + zeroPad(now.getSeconds());
             document.getElementById('timestamp').innerHTML = nowString;
         }
+        function randomString()
+        {
+            return Math.random().toString(16).substr(2, 8);
+        }
+        function cachebustThumbnails()
+        {
+            const images = {
+                "t1": "thumbnail-porch.jpg",
+                "t2": "thumbnail-garage.jpg"
+            }
+            for (let key of Object.keys(images))
+            {
+                console.log(key, " : ", images[key]);
+                document.getElementById(key).src = images[key] + '?cachebust=' + randomString();
+            }
+        }
     </script>
 </head>
-<body id="live" onload="setTime();">
+<body id="live" onload="setTime(); cachebustThumbnails();">
 <div id="timestamp">&nbsp;</div>
 <div class="thumbnails">
     <div class="thumbnail">
-        <img src="thumbnail-porch.jpg" class="thumbnailImg"/>
+        <img id="t1" src="thumbnail-porch.jpg" class="thumbnailImg"/>
     </div>
     <div class="thumbnail">
-        <img src="thumbnail-garage.jpg" class="thumbnailImg"/>
+        <img id="t2" src="thumbnail-garage.jpg" class="thumbnailImg"/>
     </div>
+    <!--
     <div class="thumbnail">
         <img src="thumbnail-democam.jpg" class="thumbnailImg"/>
     </div>
+    -->
 </div>
 </body>
 </html>

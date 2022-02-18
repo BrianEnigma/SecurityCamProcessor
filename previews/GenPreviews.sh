@@ -23,7 +23,7 @@ for ((i = 0 ; i < ${#CAMERAS[@]} ; i++)) ; do
 done
 
 # Copy to web folder
-cp /Users/admin/Security/live/thumbnail* /Users/admin/Security/recent/
+cp /Users/admin/Security/live/thumbnail* /Users/admin/Security/live/
 
 exit 0
 

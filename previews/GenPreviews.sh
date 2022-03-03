@@ -1,9 +1,18 @@
 #!/bin/bash
 
+if [ "$1" == "-b" -o "$1" == "--background" ] ; then
+	echo "Launching in background"
+	$0 &
+	exit 0
+fi
+
+echo -n "RUNNING: "
+date
+
 source config.sh
 
 # Kill any previous instance that might be around. Systemd doesn't seem to correctly timeout.
-ps ax | grep ffmpeg | grep thumbnail | sed 's/^ *//' | cut -d ' ' -f1 | xargs kill
+ps ax | grep ffmpeg | grep thumbnail | sed 's/^ *//' | cut -d ' ' -f1 | xargs kill -9
 
 # Capture thumbnails to temp folder
 for ((i = 0 ; i < ${#CAMERAS[@]} ; i++)) ; do

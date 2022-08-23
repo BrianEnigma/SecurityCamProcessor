@@ -27,12 +27,12 @@ for ((i = 0 ; i < ${#CAMERAS[@]} ; i++)) ; do
 		-vsync vfr \
 		-frames 1 \
 		-f image2 \
-		-y /Users/admin/Security/live/thumbnail-$NAME.jpg
+		-y /Users/brian/Recordings/live/thumbnail-$NAME.jpg
 	#ffmpeg -hide_banner -loglevel fatal \
 done
 
 # Copy to web folder
-cp /Users/admin/Security/live/thumbnail* /Users/admin/Security/live/
+#cp /Users/brian/Security/live/thumbnail* /Users/brian/Recordings/live/
 
 exit 0
 

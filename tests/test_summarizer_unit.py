@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from summarizer import Summarizer
+from summarizer import Summarizer  # noqa: E402
 
 
 def _write_json(directory: str, name: str, data: dict[str, object]) -> str:
@@ -233,7 +233,7 @@ class TestDiskUsageDisplay:
 
             mock_run = MagicMock()
             mock_run.stdout = b"Filesystem  Size  Used  Avail\n/dev/disk1  500G  250G  250G\n"
-            with patch("summarizer.os.system") as mock_system, patch(
+            with patch("summarizer.os.system"), patch(
                 "summarizer.subprocess.run", return_value=mock_run
             ):
                 Summarizer().callback(tmp)
@@ -250,7 +250,7 @@ class TestDiskUsageDisplay:
 
             mock_run = MagicMock()
             mock_run.stdout = b"4.2G\t/path\n"
-            with patch("summarizer.os.system") as mock_system, patch(
+            with patch("summarizer.os.system"), patch(
                 "summarizer.subprocess.run", return_value=mock_run
             ):
                 Summarizer().callback(tmp)

@@ -3,13 +3,13 @@
 import os
 import sys
 
-from hypothesis import given, settings, assume
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 # Add parent directory to path so we can import metadata
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from metadata import Metadata
+from metadata import Metadata  # noqa: E402
 
 
 # Strategy for valid hour/minute/second components
@@ -73,6 +73,7 @@ def test_metadata_extraction_round_trip(
     result_with_prefix = Metadata.extract_times(prefix + filename)
     assert result_with_prefix == result
 
+
 # Strategy for filenames that do NOT match the expected CameraName-HHMMSS-HHMMSS.ext
 # pattern.  The implementation matches start via r"-\d{6}-" and end via
 # r"-\d{6}\.".  We must ensure generated strings contain neither pattern.
@@ -116,11 +117,11 @@ def test_invalid_filename_produces_sentinel_values(filename: str) -> None:
     assert result["duration"] == -1, f"duration should be -1 for invalid filename {filename!r}"
 
 
-
 # ---------------------------------------------------------------------------
 # Unit tests for Metadata edge cases (Task 2.4)
 # Validates: Requirements 4.4, 4.5, 4.6
 # ---------------------------------------------------------------------------
+
 
 class TestDayBoundaryCrossing:
     """Requirement 4.4: end time < start time adds 86400 to duration."""

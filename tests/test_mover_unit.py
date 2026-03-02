@@ -3,13 +3,13 @@
 import os
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from mover import Mover
+from mover import Mover  # noqa: E402
 
 
 class TestRemuxFailureHandling:

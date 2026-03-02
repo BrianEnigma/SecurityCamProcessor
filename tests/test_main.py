@@ -2,13 +2,13 @@
 
 import os
 import sys
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from main import is_already_running, main
+from main import is_already_running, main  # noqa: E402
 
 
 class TestCLIArgumentValidation:

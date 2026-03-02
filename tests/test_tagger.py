@@ -1,8 +1,10 @@
 """Property-based tests for Tagger."""
 
+import json
 import os
 import sys
 import tempfile
+from unittest.mock import MagicMock
 
 import pytest
 import yaml
@@ -12,7 +14,7 @@ from hypothesis import strategies as st
 # Add parent directory to path so we can import tagger
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from tagger import Tagger
+from tagger import Tagger  # noqa: E402
 
 
 # Strategy for tag names: lowercase alpha strings (since _add_tag lowercases)
@@ -67,6 +69,7 @@ def test_tag_confidence_maximization(entries: list[tuple[str, int]]) -> None:
 
     # Verify: no extra tags appeared
     assert set(tagger.tags.keys()) == set(expected.keys())
+
 
 # Feature: ruby-to-python-rewrite, Property 4: Tag categorization is a complete partition
 @settings(max_examples=100)
@@ -211,6 +214,7 @@ def test_frame_selection_algorithm(frames: list[str]) -> None:
             "Selected frames are not a subset of the original"
         )
 
+
 # Strategy for base filenames without extension
 base_names = st.from_regex(r"[A-Za-z][A-Za-z0-9_\-]{0,29}", fullmatch=True)
 
@@ -250,8 +254,6 @@ def test_needs_processing_detects_missing_json(base: str, ext: str) -> None:
         assert tagger.needs_processing(input_file) is True, (
             "needs_processing should return True after JSON is removed"
         )
-
-
 
 
 # Strategy for non-empty strings suitable for YAML scalar values
@@ -324,9 +326,6 @@ def test_settings_yaml_round_trip(
 
 # --- Unit tests for Tagger (Task 6.7) ---
 # Requirements: 3.2, 3.3, 3.4, 3.9
-
-import json
-from unittest.mock import patch, MagicMock
 
 
 def _valid_settings() -> dict[str, object]:

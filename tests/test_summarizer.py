@@ -12,7 +12,7 @@ from hypothesis import strategies as st
 # Add parent directory to path so we can import summarizer
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from summarizer import (
+from summarizer import (  # noqa: E402
     MAX_GAP_ERROR,
     MAX_GAP_WARN,
     MIN_DURATION_ERROR,
@@ -115,6 +115,7 @@ def test_duration_css_classification(duration: int, gap: int) -> None:
             assert "gapError" not in html, (
                 f"No gapError expected for gap={gap}"
             )
+
 
 def _create_json_files(tmp_dir: str, count: int) -> list[str]:
     """Create `count` minimal JSON metadata files in tmp_dir, returning their paths."""
@@ -324,4 +325,3 @@ def test_time_formatting_invalid(seconds: int | None, include_am_pm: bool) -> No
     assert result == "err:err:err", (
         f"For seconds={seconds}: expected 'err:err:err', got '{result}'"
     )
-

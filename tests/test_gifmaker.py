@@ -11,7 +11,7 @@ from unittest.mock import patch
 # Add parent directory to path so we can import gifmaker
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from gifmaker import GifMaker
+from gifmaker import GifMaker  # noqa: E402
 
 
 # Strategy for base filenames without extension
@@ -130,4 +130,3 @@ class TestGifMakerSkipBehavior:
                 gm.callback(missing_input, ["/tmp/frame1.jpg"])
                 mock_convert.assert_not_called()
                 mock_build.assert_not_called()
-

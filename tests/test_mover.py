@@ -9,7 +9,7 @@ from hypothesis import strategies as st
 # Add parent directory to path so we can import mover
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from mover import Mover
+from mover import Mover  # noqa: E402
 
 
 # Strategy for 8-character MMDDYYYY strings

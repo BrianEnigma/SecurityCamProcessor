@@ -1,17 +1,18 @@
 """Property-based and unit tests for Scanner."""
 
 import os
+import pathlib
 import shutil
-import subprocess
 import sys
 from unittest.mock import patch, MagicMock
 
+import pytest
 from hypothesis import given, settings, assume
 from hypothesis import strategies as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from scanner import Scanner, Callback, DirectoryCallback
+from scanner import Scanner, Callback, DirectoryCallback  # noqa: E402
 
 
 class RecordingCallback(Callback):
@@ -44,7 +45,7 @@ _mp4_basenames = st.from_regex(r"[a-z][a-z0-9_]{0,14}", fullmatch=True)
 )
 def test_scanner_processes_files_in_sorted_order(
     filenames: list[str],
-    tmp_path_factory: "pytest.TempPathFactory",  # type: ignore[name-defined]
+    tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     """Property 10: For any directory containing multiple files matching the
     configured extension, the Scanner invokes callbacks on those files in
@@ -153,7 +154,7 @@ def _collect_all_dirs(base: str, tree: dict[str, object]) -> list[str]:
 @given(tree=_dir_tree)
 def test_scanner_directory_traversal_is_depth_first(
     tree: dict[str, object],
-    tmp_path_factory: "pytest.TempPathFactory",  # type: ignore[name-defined]
+    tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     """Property 11: For any directory tree, the Scanner invokes directory
     callbacks on child directories before their parent directories, with the
@@ -209,7 +210,7 @@ def test_scanner_directory_traversal_is_depth_first(
 class TestScannerFfmpegPresenceCheck:
     """Test ffmpeg availability check at Scanner initialization (Requirement 1.7)."""
 
-    def test_raises_runtime_error_when_ffmpeg_not_found(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_raises_runtime_error_when_ffmpeg_not_found(self, tmp_path: pathlib.Path) -> None:
         """Scanner should raise RuntimeError when ffmpeg is not on the system."""
         with patch("subprocess.run") as mock_run:
             result = MagicMock()
@@ -223,7 +224,7 @@ class TestScannerFfmpegPresenceCheck:
             except RuntimeError as e:
                 assert "ffmpeg" in str(e).lower()
 
-    def test_succeeds_when_ffmpeg_is_present(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_succeeds_when_ffmpeg_is_present(self, tmp_path: pathlib.Path) -> None:
         """Scanner should initialize without error when ffmpeg is available."""
         with patch("subprocess.run") as mock_run:
             result = MagicMock()
@@ -234,7 +235,7 @@ class TestScannerFfmpegPresenceCheck:
             scanner = Scanner(str(tmp_path), ".mp4", [], [])
             assert scanner.directory == os.path.abspath(str(tmp_path))
 
-    def test_raises_when_which_returns_zero_but_empty_stdout(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_raises_when_which_returns_zero_but_empty_stdout(self, tmp_path: pathlib.Path) -> None:
         """Scanner should raise RuntimeError when 'which' returns 0 but empty output."""
         with patch("subprocess.run") as mock_run:
             result = MagicMock()
@@ -252,7 +253,7 @@ class TestScannerFfmpegPresenceCheck:
 class TestScannerTempDirectoryCleanup:
     """Test that /tmp/tagger/ is cleaned before each file (Requirement 1.9)."""
 
-    def test_temp_directory_cleaned_between_files(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_temp_directory_cleaned_between_files(self, tmp_path: pathlib.Path) -> None:
         """The temp directory should be recreated (cleaned) before each file is processed."""
         scan_dir = str(tmp_path)
         # Create two .mp4 files
@@ -314,7 +315,7 @@ class TestScannerTempDirectoryCleanup:
 class TestScannerCallbackDispatch:
     """Test callback dispatch with mock callbacks (Requirement 1.3)."""
 
-    def test_callbacks_invoked_for_files_needing_processing(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_callbacks_invoked_for_files_needing_processing(self, tmp_path: pathlib.Path) -> None:
         """All callbacks should be invoked for files where at least one needs processing."""
         scan_dir = str(tmp_path)
         with open(os.path.join(scan_dir, "video.mp4"), "w") as f:
@@ -345,7 +346,7 @@ class TestScannerCallbackDispatch:
         assert cb1.processed_files == [expected_file]
         assert cb2.processed_files == [expected_file]
 
-    def test_callbacks_not_invoked_when_no_processing_needed(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_callbacks_not_invoked_when_no_processing_needed(self, tmp_path: pathlib.Path) -> None:
         """No callbacks should fire when all callbacks return False for needs_processing."""
         scan_dir = str(tmp_path)
         with open(os.path.join(scan_dir, "video.mp4"), "w") as f:
@@ -374,7 +375,7 @@ class TestScannerCallbackDispatch:
 
         assert not cb.invoked, "Callback should not be invoked when needs_processing returns False"
 
-    def test_callbacks_receive_extracted_frames(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_callbacks_receive_extracted_frames(self, tmp_path: pathlib.Path) -> None:
         """Callbacks should receive the list of extracted frame paths."""
         scan_dir = str(tmp_path)
         with open(os.path.join(scan_dir, "clip.mp4"), "w") as f:
@@ -426,7 +427,7 @@ class TestScannerCallbackDispatch:
         for frame_path in received_frames[0]:
             assert frame_path.endswith(".jpg")
 
-    def test_hidden_files_and_dirs_are_skipped(self, tmp_path: "pathlib.Path") -> None:  # type: ignore[name-defined]
+    def test_hidden_files_and_dirs_are_skipped(self, tmp_path: pathlib.Path) -> None:
         """Scanner should skip hidden files and directories (starting with '.')."""
         scan_dir = str(tmp_path)
 
@@ -465,4 +466,3 @@ class TestScannerCallbackDispatch:
         # Only the visible file should be processed
         assert len(recorder.processed_files) == 1
         assert recorder.processed_files[0].endswith("visible.mp4")
-

@@ -100,7 +100,7 @@ SUMMARIZER_HEADER: str = """<!DOCTYPE html>
             font-family:monospace;
         }
     </style>
-    
+
 </head>
 <body id="summarizer" onload="">
 """

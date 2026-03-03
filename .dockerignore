@@ -1,0 +1,10 @@
+.venv/
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+__pycache__/
+docs/
+previews/
+*.pyc
+settings.yml

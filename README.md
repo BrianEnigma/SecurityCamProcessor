@@ -75,6 +75,63 @@ The pipeline:
 
 A process guard prevents multiple instances from running simultaneously.
 
+## Docker (Containerized Workflow)
+
+Run the processor in a Docker container with all dependencies (Python 3.10+, ffmpeg with H.264/HEVC) pre-installed.
+
+### Prerequisites
+
+- [Docker Engine](https://docs.docker.com/engine/install/) or [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running.
+
+### Available Targets
+
+| Target | Description |
+|---|---|
+| `make docker-build` | Build the Docker container image |
+| `make docker-test` | Run tests inside the Docker container |
+| `make docker-run` | Run the processor inside the Docker container |
+| `make docker-debug` | Launch an interactive bash shell in the Docker container |
+
+### Volume Mount Configuration
+
+The container uses bind mounts to access host files without rebuilding the image:
+
+| Host Path | Container Path | Mode | Purpose |
+|---|---|---|---|
+| `settings.yml` | `/app/settings.yml` | read-only | Configuration file |
+| `input/` | `/media/input` | read-only | Input media directory |
+| `output/` | `/media/output` | read-write | Output media directory |
+
+### Configurable Variables
+
+Override these on the command line (e.g., `make docker-run DOCKER_INPUT_DIR=/my/videos`):
+
+| Variable | Default | Description |
+|---|---|---|
+| `DOCKER_IMAGE_NAME` | `securitycam-processor` | Image tag used for build and run |
+| `DOCKER_CONFIG_PATH` | `$(CURDIR)/settings.yml` | Host path to settings YAML |
+| `DOCKER_INPUT_DIR` | `$(CURDIR)/input` | Host path to input media directory |
+| `DOCKER_OUTPUT_DIR` | `$(CURDIR)/output` | Host path to output media directory |
+
+### Usage Examples
+
+```bash
+# Build the image
+make docker-build
+
+# Run the test suite in the container
+make docker-test
+
+# Process media files
+make docker-run
+
+# Pass additional arguments to main.py
+make docker-run ARGS="--dry-run"
+
+# Open an interactive shell for debugging
+make docker-debug
+```
+
 ## Project Structure
 
 ```

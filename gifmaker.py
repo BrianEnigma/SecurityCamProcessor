@@ -1,8 +1,8 @@
 """GIF timelapse generation plugin for SecurityCamProcessor."""
 
 import os
-import subprocess
 
+from PIL import Image
 from scanner import Callback
 
 
@@ -11,15 +11,7 @@ class GifMaker(Callback):
 
     def __init__(self) -> None:
         super().__init__()
-        if not self._is_convert_present():
-            raise RuntimeError("ImageMagick convert is required")
 
-    def _is_convert_present(self) -> bool:
-        """Check if ImageMagick convert is available on the system."""
-        result: subprocess.CompletedProcess[bytes] = subprocess.run(
-            ["which", "convert"], capture_output=True
-        )
-        return result.returncode == 0 and len(result.stdout.strip()) > 0
 
     def needs_processing(self, input_file: str) -> bool:
         """Return True if a .gif file does not exist for this input."""
@@ -35,31 +27,29 @@ class GifMaker(Callback):
             return
 
         print(f"{input_file} => {output_file}")
-        frames_resized: list[str] = self._convert_frames(frames)
-        self._build_gif(output_file, frames_resized)
+        resized_images: list[Image.Image] = self._resize_frames(sorted(frames))
+        self._build_gif(output_file, resized_images)
 
-    def _convert_frames(self, frames: list[str]) -> list[str]:
-        """Resize each frame to 300x300 via ImageMagick convert."""
-        resized: list[str] = []
+    def _resize_frames(self, frames: list[str]) -> list[Image.Image]:
+        """Open each JPEG frame, resize to 300x300 with LANCZOS, convert to palette mode."""
+        images: list[Image.Image] = []
         for filename in frames:
-            outfile: str = os.path.splitext(filename)[0] + ".gif"
-            resized.append(outfile)
-            subprocess.run(
-                ["convert", "-resize", "300x300", filename, outfile],
-                capture_output=True,
-            )
-        return resized
+            img: Image.Image = Image.open(filename)
+            img = img.resize((300, 300), Image.Resampling.LANCZOS)
+            img = img.convert("P", palette=Image.Palette.ADAPTIVE, colors=256)
+            images.append(img)
+        return images
 
-    def _build_gif(self, output_file: str, frames_resized: list[str]) -> None:
-        """Combine resized frames into a single animated GIF via gifsicle."""
-        cmd: list[str] = [
-            "gifsicle", "--merge",
-            "--delay", "3",
-            "--loopcount=0",
-            "--optimize",
-            "--colors", "256",
-        ]
-        for f in sorted(frames_resized):
-            cmd.append(f)
-        with open(output_file, "wb") as out:
-            subprocess.run(cmd, stdout=out, stderr=subprocess.DEVNULL)
+    def _build_gif(self, output_file: str, images: list[Image.Image]) -> None:
+        """Save list of PIL Images as animated GIF with 30ms delay and infinite loop."""
+        if not images:
+            return
+        first: Image.Image = images[0]
+        rest: list[Image.Image] = images[1:]
+        first.save(
+            output_file,
+            save_all=True,
+            append_images=rest,
+            duration=30,
+            loop=0,
+        )

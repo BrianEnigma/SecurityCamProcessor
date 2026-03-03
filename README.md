@@ -6,9 +6,9 @@ A pluggable post-processing pipeline for security camera videos. Recursively sca
 
 - Python 3.10+
 - [ffmpeg](https://ffmpeg.org/) — frame extraction and video remuxing
-- [ImageMagick](https://imagemagick.org/) (`convert`) — frame resizing
-- [gifsicle](https://www.lcdf.org/gifsicle/) — animated GIF assembly
 - AWS credentials configured for Rekognition (see Configuration below)
+
+Frame resizing and animated GIF generation are handled natively by [Pillow](https://pillow.readthedocs.io/), which is included in `requirements.txt`.
 
 ## Setup
 

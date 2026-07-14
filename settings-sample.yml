@@ -1,6 +1,7 @@
 access_key_id: AKIAI44QH8DHBEXAMPLE
 secret_access_key: je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY
 region: us-west-2
+ftp_source_folder: $HOME/Recordings/ftp
 flagged_tags:
     - human
     - humans

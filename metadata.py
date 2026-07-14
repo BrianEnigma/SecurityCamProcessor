@@ -18,7 +18,13 @@ class Metadata:
     def extract_times(filename: str) -> MetadataResult:
         """Extract start time, end time, and duration from a camera filename.
 
-        Filenames are of the format ``CameraName-HHMMSS-HHMMSS.ext``.
+        Two filename formats are supported:
+
+        * ``CameraName-HHMMSS-HHMMSS.ext`` - a start/end time range.
+        * ``{name}_YYYYMMDDHHMMSS.ext`` (FTP uploads, e.g.
+          ``Back Yard_00_20260713113642.mp4``) - a single timestamp. For this
+          format the ``end`` time is set equal to the ``start`` time and the
+          duration is 0, since no range is encoded in the name.
 
         Returns a dict with keys ``time_start``, ``time_end``, ``duration``
         (all in seconds since midnight).  Returns -1 for any component that
@@ -27,6 +33,18 @@ class Metadata:
         basename = os.path.basename(filename)
 
         result: MetadataResult = {"time_start": -1, "time_end": -1, "duration": -1}
+
+        # FTP convention: an underscore followed by a 14-digit YYYYMMDDHHMMSS
+        # timestamp before the extension. Only the HHMMSS portion is a time of
+        # day, so start == end and duration == 0.
+        ftp_match = re.search(r"_\d{8}(\d{2})(\d{2})(\d{2})\.", basename)
+        if ftp_match:
+            h, m, s = int(ftp_match.group(1)), int(ftp_match.group(2)), int(ftp_match.group(3))
+            seconds = h * 3600 + m * 60 + s
+            result["time_start"] = seconds
+            result["time_end"] = seconds
+            result["duration"] = 0
+            return result
 
         # Match start timestamp: -HHMMSS- (six digits between two hyphens)
         start_match = re.search(r"-(\d{2})(\d{2})(\d{2})-", basename)

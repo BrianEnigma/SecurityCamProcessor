@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """CLI entry point and process guard for SecurityCamProcessor."""
 
 import subprocess

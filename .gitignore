@@ -6,3 +6,5 @@
 .hypothesis
 settings.yml
 docs
+pyproject.toml
+uv.lock
